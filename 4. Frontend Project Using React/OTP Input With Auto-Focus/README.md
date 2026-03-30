@@ -2,6 +2,8 @@
 
 A production-grade OTP (One-Time Password) login page built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Vite**. This project demonstrates advanced input management techniques using React hooks, with a focus on seamless auto-focus behavior across multiple input fields.
 
+[Website Live Link](https://otp-input-page.netlify.app/)
+
 ---
 
 ## Table of Contents
@@ -67,12 +69,12 @@ When `screen` changes, React conditionally renders the corresponding JSX block. 
 
 The file is organized into clear sections:
 
-| Section | Purpose |
-|---|---|
-| **Constants** | `OTP_LENGTH = 6`, `RESEND_COOLDOWN = 30` — Single source of truth for magic numbers |
-| **Utility** | `simulateDelay()` — Wraps `setTimeout` in a `Promise` for `async/await` usage |
-| **Sub-Components** | `ShieldIcon`, `SuccessCheckmark`, `LoadingDots` — Stateless, purely visual |
-| **Main Component** | `OTP` — All state, refs, handlers, and JSX live here |
+| Section            | Purpose                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| **Constants**      | `OTP_LENGTH = 6`, `RESEND_COOLDOWN = 30` — Single source of truth for magic numbers |
+| **Utility**        | `simulateDelay()` — Wraps `setTimeout` in a `Promise` for `async/await` usage       |
+| **Sub-Components** | `ShieldIcon`, `SuccessCheckmark`, `LoadingDots` — Stateless, purely visual          |
+| **Main Component** | `OTP` — All state, refs, handlers, and JSX live here                                |
 
 ### Why a Single Component?
 
@@ -84,18 +86,18 @@ For a focused feature like OTP login, splitting into too many micro-components i
 
 ### 1. `useState` — Reactive UI State
 
-**The Question:** *"What data, when changed, should cause the screen to re-render?"*
+**The Question:** _"What data, when changed, should cause the screen to re-render?"_
 
 Every piece of data that directly affects what the user **sees** is a `useState` candidate:
 
 ```typescript
-const [screen, setScreen] = useState<Screen>("phone");   // Which screen to show
-const [phone, setPhone] = useState("");                   // Phone number typed
+const [screen, setScreen] = useState<Screen>("phone"); // Which screen to show
+const [phone, setPhone] = useState(""); // Phone number typed
 const [otp, setOtp] = useState<string[]>(Array(6).fill("")); // Each OTP digit
-const [loading, setLoading] = useState(false);            // Show loading dots?
-const [error, setError] = useState("");                   // Show error message?
-const [timer, setTimer] = useState(0);                    // Countdown seconds
-const [shakeInputs, setShakeInputs] = useState(false);    // Trigger shake animation?
+const [loading, setLoading] = useState(false); // Show loading dots?
+const [error, setError] = useState(""); // Show error message?
+const [timer, setTimer] = useState(0); // Countdown seconds
+const [shakeInputs, setShakeInputs] = useState(false); // Trigger shake animation?
 ```
 
 **Why these are `useState` and not plain variables:**
@@ -106,7 +108,7 @@ A plain `let` variable resets on every render and does **not** trigger a re-rend
 
 ### 2. `useRef` — Imperative DOM Access Without Re-renders
 
-**The Question:** *"What do we need to access or mutate that should NOT cause a re-render?"*
+**The Question:** _"What do we need to access or mutate that should NOT cause a re-render?"_
 
 We identified **two** such cases:
 
@@ -134,8 +136,8 @@ The core auto-focus feature requires us to **programmatically call `.focus()`** 
 This **callback ref** pattern runs during rendering and stores each input's DOM node at its corresponding array index. Now we can do:
 
 ```typescript
-inputRefs.current[index + 1]?.focus();  // Focus the next box
-inputRefs.current[index - 1]?.focus();  // Focus the previous box
+inputRefs.current[index + 1]?.focus(); // Focus the next box
+inputRefs.current[index - 1]?.focus(); // Focus the previous box
 ```
 
 **Why NOT `useState` for this?**
@@ -151,6 +153,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 **Why we need this:**
 
 `setInterval` returns an ID that we need to pass to `clearInterval` later. This ID:
+
 - Must **persist** across renders (a plain `let` would get reset)
 - Must **not** trigger re-renders when stored (the user does not see the interval ID)
 
@@ -160,7 +163,7 @@ const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 ### 3. `useCallback` — Stable Function References
 
-**The Question:** *"Is this function recreated every render, and does that cause problems?"*
+**The Question:** _"Is this function recreated every render, and does that cause problems?"_
 
 ```typescript
 const startTimer = useCallback(() => {
@@ -181,14 +184,16 @@ const startTimer = useCallback(() => {
 **Why `useCallback` here specifically:**
 
 `startTimer` is called from **two** different places:
+
 1. `handleSendOTP` — when the user sends the OTP
 2. `handleResendOTP` — when the user resends the OTP
 
 Without `useCallback`, a new `startTimer` function would be created on **every render**. While this does not cause a bug by itself, wrapping it in `useCallback(() => {...}, [])` tells React:
 
-> *"This function does not depend on any changing state. Create it once and reuse the same reference."*
+> _"This function does not depend on any changing state. Create it once and reuse the same reference."_
 
 The empty `[]` dependency array means: "this function never needs to be recreated." This works because inside `startTimer`, we use:
+
 - `setTimer(prev => ...)` — the **functional updater** form, which always receives the latest value without needing `timer` in the dependency array
 - `timerRef.current` — accessed via ref, which is always the latest value by nature
 
@@ -196,7 +201,7 @@ The empty `[]` dependency array means: "this function never needs to be recreate
 
 ### 4. `useEffect` — Side-Effect Cleanup
 
-**The Question:** *"Is there anything that needs to be cleaned up when the component unmounts?"*
+**The Question:** _"Is there anything that needs to be cleaned up when the component unmounts?"_
 
 ```typescript
 useEffect(() => {
@@ -209,8 +214,9 @@ useEffect(() => {
 **Why this is critical:**
 
 If the user navigates away from the OTP page while the countdown is running, the `setInterval` would **continue ticking in the background**, calling `setTimer` on an unmounted component. This causes:
+
 - Memory leaks
-- React warnings: *"Can't perform a state update on an unmounted component"*
+- React warnings: _"Can't perform a state update on an unmounted component"_
 
 The cleanup function (returned from `useEffect`) runs when the component unmounts, ensuring the interval is properly cleared.
 
@@ -245,15 +251,15 @@ handleOtpChange(0, event)
 ```typescript
 const handleOtpChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value;
-  if (value && !/^\d$/.test(value)) return;  // Reject non-digits
+  if (value && !/^\d$/.test(value)) return; // Reject non-digits
 
-  const newOtp = [...otp];          // Clone (immutable update)
+  const newOtp = [...otp]; // Clone (immutable update)
   newOtp[index] = value;
   setOtp(newOtp);
   setError("");
 
   if (value && index < OTP_LENGTH - 1) {
-    inputRefs.current[index + 1]?.focus();   // ← Auto-focus next
+    inputRefs.current[index + 1]?.focus(); // ← Auto-focus next
   }
 };
 ```
@@ -310,8 +316,8 @@ const handleOtpPaste = (e: ClipboardEvent<HTMLInputElement>) => {
   e.preventDefault();
   const pasted = e.clipboardData
     .getData("text")
-    .replace(/\D/g, "")           // Strip non-digits
-    .slice(0, OTP_LENGTH);        // Limit to 6
+    .replace(/\D/g, "") // Strip non-digits
+    .slice(0, OTP_LENGTH); // Limit to 6
 
   const newOtp = [...otp];
   pasted.split("").forEach((char, i) => {
@@ -350,10 +356,12 @@ The resend-OTP countdown is a common pattern, but it has a subtle implementation
 
 ```typescript
 const startTimer = useCallback(() => {
-  setTimer(RESEND_COOLDOWN);                        // 1. Reset to 30
-  if (timerRef.current) clearInterval(timerRef.current);  // 2. Clear any existing interval
-  timerRef.current = setInterval(() => {             // 3. Start new interval
-    setTimer((prev) => {                             // 4. Functional updater
+  setTimer(RESEND_COOLDOWN); // 1. Reset to 30
+  if (timerRef.current) clearInterval(timerRef.current); // 2. Clear any existing interval
+  timerRef.current = setInterval(() => {
+    // 3. Start new interval
+    setTimer((prev) => {
+      // 4. Functional updater
       if (prev <= 1) {
         if (timerRef.current) clearInterval(timerRef.current);
         return 0;
@@ -382,13 +390,13 @@ If the user clicks "Resend OTP" while a timer is already running (unlikely due t
 
 ## Why `useRef` for Inputs and Not `document.getElementById()`?
 
-| Criteria | `useRef` | `document.getElementById()` |
-|---|---|---|
-| **React-aware?** | ✅ Knows about React's render cycle | ❌ Bypasses React entirely |
-| **Works in SSR?** | ✅ Safe (ref is null until mount) | ❌ `document` does not exist on server |
-| **Type-safe?** | ✅ Full TypeScript generics | ❌ Returns `Element \| null`, needs casting |
-| **Dynamic elements?** | ✅ Callback ref with `.map()` | ⚠️ Requires constructing IDs manually |
-| **Memory leaks?** | ✅ React manages cleanup | ⚠️ Manual cleanup needed |
+| Criteria              | `useRef`                            | `document.getElementById()`                 |
+| --------------------- | ----------------------------------- | ------------------------------------------- |
+| **React-aware?**      | ✅ Knows about React's render cycle | ❌ Bypasses React entirely                  |
+| **Works in SSR?**     | ✅ Safe (ref is null until mount)   | ❌ `document` does not exist on server      |
+| **Type-safe?**        | ✅ Full TypeScript generics         | ❌ Returns `Element \| null`, needs casting |
+| **Dynamic elements?** | ✅ Callback ref with `.map()`       | ⚠️ Requires constructing IDs manually       |
+| **Memory leaks?**     | ✅ React manages cleanup            | ⚠️ Manual cleanup needed                    |
 
 In React, **always prefer `useRef`** over direct DOM queries. The framework manages the DOM — reaching around it with `getElementById` can lead to stale references, especially during re-renders.
 
@@ -398,19 +406,19 @@ In React, **always prefer `useRef`** over direct DOM queries. The framework mana
 
 ```typescript
 // ✅ What we use:
-const [otp, setOtp] = useState<string[]>(Array(6).fill(""));  // ["", "", "", "", "", ""]
+const [otp, setOtp] = useState<string[]>(Array(6).fill("")); // ["", "", "", "", "", ""]
 
 // ❌ Alternative (worse):
-const [otp, setOtp] = useState("");  // ""
+const [otp, setOtp] = useState(""); // ""
 ```
 
-| Scenario | `string[]` Approach | `string` Approach |
-|---|---|---|
-| **Set digit at index 3** | `newOtp[3] = "7"` | `otp.slice(0,3) + "7" + otp.slice(4)` — messy |
-| **Clear digit at index 3** | `newOtp[3] = ""` | Complex string manipulation |
-| **Read value of box 3** | `otp[3]` | `otp[3]` (same) |
-| **Check if all filled** | `otp.join("").length === 6` | `otp.length === 6` |
-| **Handle paste** | Iterate and assign to indices | Complex substring logic |
+| Scenario                   | `string[]` Approach           | `string` Approach                             |
+| -------------------------- | ----------------------------- | --------------------------------------------- |
+| **Set digit at index 3**   | `newOtp[3] = "7"`             | `otp.slice(0,3) + "7" + otp.slice(4)` — messy |
+| **Clear digit at index 3** | `newOtp[3] = ""`              | Complex string manipulation                   |
+| **Read value of box 3**    | `otp[3]`                      | `otp[3]` (same)                               |
+| **Check if all filled**    | `otp.join("").length === 6`   | `otp.length === 6`                            |
+| **Handle paste**           | Iterate and assign to indices | Complex substring logic                       |
 
 The array approach provides **direct index access**, making every operation simpler and more intuitive.
 
@@ -418,31 +426,31 @@ The array approach provides **direct index access**, making every operation simp
 
 ## State Management Summary Table
 
-| State Variable | Type | Hook | Why This Hook | Triggers Re-render? |
-|---|---|---|---|---|
-| `screen` | `"phone" \| "otp" \| "success"` | `useState` | Determines which screen to render | ✅ Yes |
-| `phone` | `string` | `useState` | Displayed in input + shown on OTP screen | ✅ Yes |
-| `otp` | `string[]` | `useState` | Each digit shown in its input box | ✅ Yes |
-| `loading` | `boolean` | `useState` | Toggles button text to loading dots | ✅ Yes |
-| `error` | `string` | `useState` | Conditionally renders error message | ✅ Yes |
-| `timer` | `number` | `useState` | Countdown display updates every second | ✅ Yes |
-| `shakeInputs` | `boolean` | `useState` | Adds/removes shake animation class | ✅ Yes |
-| `inputRefs` | `HTMLInputElement[]` | `useRef` | DOM access for `.focus()` — no visual change | ❌ No |
-| `timerRef` | `interval ID` | `useRef` | Stored for `clearInterval()` — no visual change | ❌ No |
-| `startTimer` | `function` | `useCallback` | Stable reference, called from multiple handlers | N/A |
-| cleanup | side-effect | `useEffect` | Clears interval on component unmount | N/A |
+| State Variable | Type                            | Hook          | Why This Hook                                   | Triggers Re-render? |
+| -------------- | ------------------------------- | ------------- | ----------------------------------------------- | ------------------- |
+| `screen`       | `"phone" \| "otp" \| "success"` | `useState`    | Determines which screen to render               | ✅ Yes              |
+| `phone`        | `string`                        | `useState`    | Displayed in input + shown on OTP screen        | ✅ Yes              |
+| `otp`          | `string[]`                      | `useState`    | Each digit shown in its input box               | ✅ Yes              |
+| `loading`      | `boolean`                       | `useState`    | Toggles button text to loading dots             | ✅ Yes              |
+| `error`        | `string`                        | `useState`    | Conditionally renders error message             | ✅ Yes              |
+| `timer`        | `number`                        | `useState`    | Countdown display updates every second          | ✅ Yes              |
+| `shakeInputs`  | `boolean`                       | `useState`    | Adds/removes shake animation class              | ✅ Yes              |
+| `inputRefs`    | `HTMLInputElement[]`            | `useRef`      | DOM access for `.focus()` — no visual change    | ❌ No               |
+| `timerRef`     | `interval ID`                   | `useRef`      | Stored for `clearInterval()` — no visual change | ❌ No               |
+| `startTimer`   | `function`                      | `useCallback` | Stable reference, called from multiple handlers | N/A                 |
+| cleanup        | side-effect                     | `useEffect`   | Clears interval on component unmount            | N/A                 |
 
 ---
 
 ## Tech Stack
 
-| Technology | Version | Purpose |
-|---|---|---|
-| React | 19.2 | UI library with hooks |
-| TypeScript | 5.9 | Static type safety |
-| Tailwind CSS | 4.2 | Utility-first styling |
-| Vite | 7.3 | Development server & build tool |
-| SWC | — | Fast TypeScript/JSX compilation |
+| Technology   | Version | Purpose                         |
+| ------------ | ------- | ------------------------------- |
+| React        | 19.2    | UI library with hooks           |
+| TypeScript   | 5.9     | Static type safety              |
+| Tailwind CSS | 4.2     | Utility-first styling           |
+| Vite         | 7.3     | Development server & build tool |
+| SWC          | —       | Fast TypeScript/JSX compilation |
 
 ---
 
