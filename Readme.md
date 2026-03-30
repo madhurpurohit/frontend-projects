@@ -8,12 +8,12 @@ A curated collection of frontend projects and JavaScript exercises demonstrating
 
 This repository serves as a structured portfolio of my frontend development journey. It is organized into four distinct sections, each representing a key area of frontend engineering:
 
-| #   | Section                        | Description                                                                 | Tech Stack                          |
-| --- | ------------------------------ | --------------------------------------------------------------------------- | ----------------------------------- |
-| 1   | **CSS Mini Projects**          | Focused UI components — animated login pages, loading animations, and more. | HTML, CSS                           |
-| 2   | **JavaScript Practice (50 Days)** | A 50-day hands-on JavaScript practice log covering core and advanced concepts. | JavaScript (ES6+)                   |
-| 3   | **Frontend Projects Using JS** | Complete, functional web applications built with vanilla JavaScript.        | HTML, CSS, JavaScript               |
-| 4   | **Frontend Project Using React** | Production-style components built with React and TypeScript.               | React 19, TypeScript, Vite, Tailwind CSS |
+| #   | Section                           | Description                                                                    | Tech Stack                               |
+| --- | --------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------- |
+| 1   | **CSS Mini Projects**             | Focused UI components — animated login pages, loading animations, and more.    | HTML, CSS                                |
+| 2   | **JavaScript Practice (50 Days)** | A 50-day hands-on JavaScript practice log covering core and advanced concepts. | JavaScript (ES6+)                        |
+| 3   | **Frontend Projects Using JS**    | Complete, functional web applications built with vanilla JavaScript.           | HTML, CSS, JavaScript                    |
+| 4   | **Frontend Project Using React**  | Production-style components built with React and TypeScript.                   | React 19, TypeScript, Vite, Tailwind CSS |
 
 ---
 
@@ -46,42 +46,51 @@ Frontend-Projects/
 ## 🔥 Highlighted Projects
 
 ### 📋 Kanban Board — ToDo App
+
 > A fully functional drag-and-drop task management board built with vanilla JavaScript.
 
 - **Tech:** HTML · CSS · JavaScript
 - **Features:** Task creation, drag-and-drop between columns, persistent UI state, Responsive Design
 
+[Live Link](https://devs-kanban-board.netlify.app/)
+
 ---
 
 ### 🔐 OTP Input With Auto-Focus
+
 > A production-grade OTP input component with intelligent auto-focus, built with modern React and TypeScript.
 
 - **Tech:** React 19 · TypeScript · Vite · Tailwind CSS v4
 - **Features:** Auto-focus on next input, backspace navigation, paste support, fully typed
 
+[Live Link](https://otp-input-page.netlify.app/)
+
 ---
 
 ## 🛠️ Tech Stack
 
-| Category   | Technologies                                        |
-| ---------- | --------------------------------------------------- |
-| Languages  | HTML5, CSS3, JavaScript (ES6+), TypeScript          |
-| Libraries  | React 19                                            |
-| Build Tools | Vite 7, Bun, Npm                                   |
-| Styling    | Vanilla CSS, Tailwind CSS v4                        |
-| Tooling    | ESLint, Prettier                                    |
+| Category    | Technologies                               |
+| ----------- | ------------------------------------------ |
+| Languages   | HTML5, CSS3, JavaScript (ES6+), TypeScript |
+| Libraries   | React 19                                   |
+| Build Tools | Vite 7, Bun, Npm                           |
+| Styling     | Vanilla CSS, Tailwind CSS v4               |
+| Tooling     | ESLint, Prettier                           |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (v18 or above) or [Bun](https://bun.sh/)
 
 ### Running a Vanilla JS/CSS Project
+
 Simply open the `index.html` file in your browser — no build step required.
 
 ### Running the React Project
+
 ```bash
 # Navigate to the project directory
 cd "4. Frontend Project Using React/OTP Input With Auto-Focus"
