@@ -1,0 +1,108 @@
+/*CSS Reset*/
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/*Div Main*/
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+/*Spin Animation*/
+.container {
+  height: 100px;
+  position: absolute;
+  animation: spin 3s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(-0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.container:nth-child(1) {
+  animation-delay: 0.3s;
+}
+.container:nth-child(2) {
+  animation-delay: 0.6s;
+}
+.container:nth-child(3) {
+  animation-delay: 0.9s;
+}
+.container:nth-child(4) {
+  animation-delay: 1.2s;
+}
+.container:nth-child(5) {
+  animation-delay: 1.5s;
+}
+.container:nth-child(6) {
+  animation-delay: 1.8s;
+}
+.container:nth-child(7) {
+  animation-delay: 2.1s;
+}
+.container:nth-child(8) {
+  animation-delay: 2.4s;
+}
+.container:nth-child(9) {
+  animation-delay: 2.7s;
+}
+.container:nth-child(10) {
+  animation-delay: 3s;
+}
+
+/*Dots Animation*/
+.container .circle {
+  height: 20px;
+  width: 20px;
+  background: black;
+  border-radius: 50%;
+  animation: dots 3s linear infinite;
+}
+@keyframes dots {
+  from {
+    background: black;
+  }
+  to {
+    background: white;
+  }
+}
+
+.container:nth-child(1) .circle {
+  animation-delay: 0.3s;
+}
+.container:nth-child(2) .circle {
+  animation-delay: 0.6s;
+}
+.container:nth-child(3) .circle {
+  animation-delay: 0.9s;
+}
+.container:nth-child(4) .circle {
+  animation-delay: 1.2s;
+}
+.container:nth-child(5) .circle {
+  animation-delay: 1.5s;
+}
+.container:nth-child(6) .circle {
+  animation-delay: 1.8s;
+}
+.container:nth-child(7) .circle {
+  animation-delay: 2.1s;
+}
+.container:nth-child(8) .circle {
+  animation-delay: 2.4s;
+}
+.container:nth-child(9) .circle {
+  animation-delay: 2.7s;
+}
+.container:nth-child(10) .circle {
+  animation-delay: 3s;
+}

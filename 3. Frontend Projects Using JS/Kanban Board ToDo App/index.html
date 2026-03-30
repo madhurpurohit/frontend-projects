@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO Meta -->
+  <meta name="description" content="Dev's Kanban — A sleek, dark-themed Kanban board for managing tasks across To Do, In Progress, and Done columns." />
+
+  <title>Dev's Kanban Board</title>
+
+  <!-- Google Font — Inter (modern, clean sans-serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ═══════════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════════ -->
+  <nav class="navbar" aria-label="Primary navigation">
+    <!-- Brand -->
+    <h1 class="navbar__brand">
+      <span class="navbar__brand-icon" aria-hidden="true">📋</span>
+      Dev's Kanban
+    </h1>
+
+    <!-- Action -->
+    <button class="btn btn--primary" id="btn-add-task" aria-label="Add a new task">
+      <span class="btn__icon" aria-hidden="true">+</span>
+      Add New Task
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       KANBAN BOARD
+       ═══════════════════════════════════════════ -->
+  <main class="board" id="kanban-board" aria-label="Kanban board">
+
+    <!-- ── Column: To Do ────────────────────── -->
+    <section class="column" id="column-todo" data-status="todo" aria-label="To Do column">
+      <header class="column__header">
+        <div class="column__title-group">
+          <span class="column__indicator column__indicator--todo" aria-hidden="true"></span>
+          <h2 class="column__title">To Do</h2>
+        </div>
+        <span class="column__count" id="count-todo" aria-label="Task count">0</span>
+      </header>
+      <!-- Tasks are rendered dynamically from localStorage -->
+      <div class="column__tasks" id="tasks-todo"></div>
+    </section>
+
+    <!-- ── Column: In Progress ──────────────── -->
+    <section class="column" id="column-inprogress" data-status="inprogress" aria-label="In Progress column">
+      <header class="column__header">
+        <div class="column__title-group">
+          <span class="column__indicator column__indicator--inprogress" aria-hidden="true"></span>
+          <h2 class="column__title">In Progress</h2>
+        </div>
+        <span class="column__count" id="count-inprogress" aria-label="Task count">0</span>
+      </header>
+      <div class="column__tasks" id="tasks-inprogress"></div>
+    </section>
+
+    <!-- ── Column: Done ─────────────────────── -->
+    <section class="column" id="column-done" data-status="done" aria-label="Done column">
+      <header class="column__header">
+        <div class="column__title-group">
+          <span class="column__indicator column__indicator--done" aria-hidden="true"></span>
+          <h2 class="column__title">Done</h2>
+        </div>
+        <span class="column__count" id="count-done" aria-label="Task count">0</span>
+      </header>
+      <div class="column__tasks" id="tasks-done"></div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       MODAL — Add New Task
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal-add-task" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+      <h2 class="modal__heading" id="modal-heading">Create New Task</h2>
+
+      <input  class="modal__input"    id="modal-title" type="text"
+              placeholder="Enter task title…" autocomplete="off" />
+
+      <textarea class="modal__textarea" id="modal-desc" rows="2"
+                placeholder="Enter task description…"></textarea>
+
+      <div class="modal__actions">
+        <button class="btn btn--ghost"   id="modal-cancel" type="button">Cancel</button>
+        <button class="btn btn--primary" id="modal-submit" type="button">Add Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="index.js"></script>
+</body>
+</html>

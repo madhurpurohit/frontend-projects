@@ -1,0 +1,759 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Dev's Kanban Board — Stylesheet
+   ─────────────────────────────────────────────────────────────────────
+   Dark-themed Kanban board with glassmorphism navbar, smooth micro-
+   animations, custom scrollbars, and pre-built CSS states for
+   drag-and-drop (to be wired via JavaScript).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────
+   1. DESIGN TOKENS — Custom Properties (Theming)
+   ───────────────────────────────────────────────────────────────────── */
+:root {
+  /* ── Colors ─────────────────────────────── */
+  --bg-primary: #0d0d12;
+  --bg-surface: #16161f;
+  --bg-card: #1e1e2a;
+  --bg-card-hover: #252535;
+  --bg-navbar: rgba(22, 22, 31, 0.75);
+
+  --text-primary: #eaeaef;
+  --text-secondary: #8e8ea0;
+  --text-muted: #5c5c6f;
+
+  --accent: #6c5ce7;
+  --accent-hover: #7f70f0;
+  --accent-glow: rgba(108, 92, 231, 0.25);
+
+  --danger: #e74c5a;
+  --danger-hover: #ff6b7a;
+  --danger-glow: rgba(231, 76, 90, 0.2);
+
+  --border-subtle: #2a2a38;
+  --border-drag: var(--accent);
+
+  /* ── Column Status Colors ───────────────── */
+  --status-todo: #f39c12;
+  --status-inprogress: #3498db;
+  --status-done: #2ecc71;
+
+  /* ── Spacing Scale (8px base) ───────────── */
+  --space-xs: 0.4rem;
+  --space-sm: 0.8rem;
+  --space-md: 1.6rem;
+  --space-lg: 2.4rem;
+  --space-xl: 3.2rem;
+
+  /* ── Border Radius ──────────────────────── */
+  --radius-sm: 0.6rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.4rem;
+  --radius-pill: 10rem;
+
+  /* ── Shadows ────────────────────────────── */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-navbar: 0 1px 12px rgba(0, 0, 0, 0.5);
+  --shadow-drag: 0 12px 32px rgba(108, 92, 231, 0.3);
+
+  /* ── Transitions ────────────────────────── */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   2. RESET & BASE
+   ───────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  /* 1rem = 10px for easy rem math */
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+
+  /* Lock body to viewport height — no page-level scroll */
+  width: 100%;
+  max-width: 1280px;
+  height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+
+  /* Flex layout: navbar on top, board fills the rest */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   3. TYPOGRAPHY
+   ───────────────────────────────────────────────────────────────────── */
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   4. NAVBAR — Glassmorphism style
+   ───────────────────────────────────────────────────────────────────── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+
+  /* Glassmorphism */
+  background: var(--bg-navbar);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-navbar);
+
+  /* Ensure navbar stays on top when scrolling inside columns */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+/* Brand / Logo */
+.navbar__brand {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+
+  /* Gradient text */
+  background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar__brand-icon {
+  font-size: 2.2rem;
+  /* Reset gradient fill for emoji */
+  -webkit-text-fill-color: initial;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   5. BUTTONS (shared)
+   ───────────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--easing);
+  white-space: nowrap;
+}
+
+/* Primary variant — accent */
+.btn--primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #5a4bd1 100%);
+  color: #fff;
+  box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+.btn--primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--accent-hover) 0%,
+    var(--accent) 100%
+  );
+  box-shadow: 0 4px 18px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.btn--primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn__icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   6. BOARD — Three-column flex layout
+   ───────────────────────────────────────────────────────────────────── */
+.board {
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
+
+  /* Fill remaining height after navbar */
+  flex: 1;
+  min-height: 0; /* crucial for flex children to shrink & scroll */
+
+  /* Smooth transition for drag state */
+  transition: gap var(--duration-normal) var(--easing);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   7. COLUMN
+   ───────────────────────────────────────────────────────────────────── */
+.column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* prevent flex overflow */
+
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+
+  /* Smooth transitions for drag-over animation */
+  transition:
+    transform var(--duration-normal) var(--easing),
+    border var(--duration-normal) var(--easing),
+    background var(--duration-normal) var(--easing),
+    box-shadow var(--duration-normal) var(--easing);
+}
+
+/* ── Column Header ──────────────────────── */
+.column__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-md);
+  flex-shrink: 0; /* keep header visible, only task list scrolls */
+}
+
+.column__title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Color indicator dot next to column title */
+.column__indicator {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.column__indicator--todo {
+  background-color: var(--status-todo);
+}
+.column__indicator--inprogress {
+  background-color: var(--status-inprogress);
+}
+.column__indicator--done {
+  background-color: var(--status-done);
+}
+
+.column__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Count badge */
+.column__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   8. COLUMN TASKS — Scrollable container
+   ───────────────────────────────────────────────────────────────────── */
+.column__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+
+  /* Enable vertical scrolling when tasks overflow */
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* allow flex child to shrink */
+
+  /* Right padding to prevent scrollbar overlapping cards */
+  padding-right: var(--space-xs);
+}
+
+/* ── Custom Scrollbar (Webkit) ──────────── */
+.column__tasks::-webkit-scrollbar {
+  width: 5px;
+}
+
+.column__tasks::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--radius-pill);
+}
+
+.column__tasks::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  transition: background var(--duration-fast);
+}
+
+.column__tasks::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Firefox scrollbar */
+.column__tasks {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   9. TASK CARD — Two-column grid
+   ───────────────────────────────────────────────────────────────────── */
+.task-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: var(--space-md);
+
+  padding: var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+
+  cursor: grab;
+  user-select: none;
+
+  /* Smooth transitions for hover & drag states */
+  transition:
+    transform var(--duration-normal) var(--easing),
+    box-shadow var(--duration-normal) var(--easing),
+    background var(--duration-normal) var(--easing),
+    border-color var(--duration-normal) var(--easing),
+    opacity var(--duration-normal) var(--easing);
+}
+
+/* Task card hover — subtle lift */
+.task-card:hover {
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: var(--accent-glow);
+}
+
+/* ── Task Info ───────────────────────────── */
+.task-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0; /* prevent text overflow */
+}
+
+.task-card__title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+
+  /* Truncate long titles */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-card__desc {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
+
+  /* Clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Delete Button ──────────────────────── */
+.task-card__delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  transition:
+    color var(--duration-fast),
+    background var(--duration-fast),
+    border-color var(--duration-fast),
+    transform var(--duration-fast);
+}
+
+.task-card__delete:hover {
+  color: var(--danger-hover);
+  background: var(--danger-glow);
+  border-color: rgba(231, 76, 90, 0.15);
+  transform: scale(1.1);
+}
+
+.task-card__delete:active {
+  transform: scale(0.95);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   10. DRAG & DROP CSS STATES
+   ─────────────────────────────────────────────────────────────────────
+   These classes are designed to be toggled via JavaScript during
+   drag events. They provide all visual feedback:
+   
+   .task-card.dragging   → applied to the card being dragged
+   .column.drag-shrink   → applied to NON-target columns
+   .column.drag-over     → applied to the HOVERED target column
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Card being dragged — lifts, scales up slightly, becomes translucent */
+.task-card.dragging {
+  opacity: 0.55;
+  transform: scale(1.05) rotate(1.5deg);
+  box-shadow: var(--shadow-drag);
+  border-color: var(--accent);
+  cursor: grabbing;
+
+  /* Smooth exit animation when class is removed */
+  transition:
+    transform var(--duration-slow) var(--easing),
+    opacity var(--duration-slow) var(--easing),
+    box-shadow var(--duration-slow) var(--easing),
+    border-color var(--duration-slow) var(--easing);
+}
+
+/* Non-target columns shrink to create visual space */
+.column.drag-shrink {
+  transform: scale(0.97);
+  opacity: 0.7;
+}
+
+/* Target column — scales up, shows dashed accent border */
+.column.drag-over {
+  transform: scale(1.02);
+  border: 2px dashed var(--border-drag);
+  background: rgba(108, 92, 231, 0.05);
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   11. EMPTY STATE — Placeholder for empty columns
+   ─────────────────────────────────────────────────────────────────────
+   Add an element with class .column__empty inside .column__tasks
+   when the column has zero tasks.
+   ───────────────────────────────────────────────────────────────────── */
+.column__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   12. ANIMATIONS — Fade-in for new task cards
+   ───────────────────────────────────────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply to cards — staggered via JS or initial load */
+.task-card {
+  animation: fadeSlideIn var(--duration-slow) var(--easing) both;
+}
+
+/* Stagger animation delay for static demo cards */
+.task-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.task-card:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.task-card:nth-child(3) {
+  animation-delay: 0.19s;
+}
+.task-card:nth-child(4) {
+  animation-delay: 0.26s;
+}
+.task-card:nth-child(5) {
+  animation-delay: 0.33s;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   13. RESPONSIVE — Graceful degradation on smaller screens
+   ───────────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .board {
+    flex-direction: column;
+    overflow-y: auto;
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+
+  .column {
+    /* In stacked layout, set a max-height so each column scrolls */
+    max-height: 40vh;
+  }
+
+  .navbar {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .navbar__brand {
+    font-size: 1.6rem;
+  }
+
+  .btn {
+    font-size: 1.2rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .column {
+    max-height: 35vh;
+  }
+
+  .task-card {
+    padding: var(--space-sm);
+    gap: var(--space-sm);
+  }
+
+  .task-card__title {
+    font-size: 1.3rem;
+  }
+
+  .task-card__desc {
+    font-size: 1.1rem;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   14. MODAL — Add New Task overlay + dialog
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── Overlay ────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  /* Hidden by default */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--easing);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Dialog Card ────────────────────────── */
+.modal {
+  width: min(92vw, 46rem);
+  padding: var(--space-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+
+  /* Entrance animation */
+  transform: scale(0.92) translateY(10px);
+  transition:
+    transform var(--duration-slow) var(--easing),
+    opacity var(--duration-slow) var(--easing);
+}
+
+.modal-overlay.active .modal {
+  transform: scale(1) translateY(0);
+}
+
+/* ── Heading ────────────────────────────── */
+.modal__heading {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Shared input / textarea styling ───── */
+.modal__input,
+.modal__textarea {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  outline: none;
+  transition:
+    border-color var(--duration-fast),
+    box-shadow var(--duration-fast);
+}
+
+.modal__input::placeholder,
+.modal__textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.modal__input:focus,
+.modal__textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ── Textarea specifics ─────────────────── */
+.modal__textarea {
+  resize: none; /* Growth handled by JS */
+  min-height: 4.8rem; /* ~2 rows */
+  max-height: 16rem; /* ~6 rows, then scrolls */
+  overflow-y: auto;
+}
+
+/* Textarea custom scrollbar (Webkit) */
+.modal__textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal__textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal__textarea::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-pill);
+}
+
+.modal__textarea::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Firefox scrollbar */
+.modal__textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+
+/* ── Action Buttons ─────────────────────── */
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+}
+
+/* Ghost button variant */
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn--ghost:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-muted);
+}
+
+.btn--ghost:active {
+  transform: scale(0.97);
+}
+
+/* ── Modal responsive overrides ─────────── */
+@media (max-width: 480px) {
+  .modal {
+    padding: var(--space-md);
+    gap: var(--space-sm);
+  }
+
+  .modal__heading {
+    font-size: 1.6rem;
+  }
+
+  .modal__input,
+  .modal__textarea {
+    font-size: 1.3rem;
+  }
+}
